@@ -4,7 +4,7 @@ These analytical patterns — funnel conversion, channel attribution, cohort ret
 
 ## Dashboard preview
 
-<img width="2804" height="1950" alt="image" src="https://github.com/user-attachments/assets/5549024a-ab86-4251-9ca0-51d0c63f0aff" />
+<img width="2804" height="1950" alt="image" src="https://github.com/user-attachments/assets/c448804b-726c-4f65-b5f0-c7cac94f0bb6" />
 
 
 **[View the interactive dashboard on Tableau Public](https://public.tableau.com/views/GA4Analytics_17817907782290/GA4Analytics)**
