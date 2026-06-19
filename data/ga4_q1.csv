@@ -1,0 +1,6 @@
+funnel_step,event_name,unique_users,step_conversion_pct,cumulative_conversion_pct
+1,session_start,267116,,100.0
+2,view_item,61252,22.93,22.93
+3,add_to_cart,12545,20.48,4.7
+4,begin_checkout,9715,77.44,3.64
+5,purchase,4419,45.49,1.65

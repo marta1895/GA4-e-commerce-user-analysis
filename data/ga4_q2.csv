@@ -1,0 +1,8 @@
+medium,source,unique_users,total_sessions,purchasing_sessions,conversion_rate_pct
+organic,google,103487,111523,1250,1.12
+(none),(direct),75951,82853,1079,1.3
+<Other>,<Other>,51037,51799,506,0.98
+referral,<Other>,32880,34566,471,1.36
+referral,shop.googlemerchandisestore.com,26065,28750,585,2.03
+cpc,google,15527,15594,153,0.98
+organic,<Other>,10095,10151,97,0.96

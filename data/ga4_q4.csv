@@ -1,0 +1,4 @@
+device_type,unique_users,total_sessions,purchasing_sessions,conversion_rate_pct,total_purchase_revenue,avg_revenue_per_purchase
+desktop,158917,205273,2749,1.34,208815.0,75.96
+mobile,109195,141374,1995,1.41,146768.0,73.57
+tablet,6250,7992,104,1.3,6582.0,63.29
