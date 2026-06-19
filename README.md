@@ -1,6 +1,6 @@
 # GA4-e-commerce-user-analysis
-This project explores 3 months of session-level event data from the Google Merchandise Store using the public GA4 obfuscated sample dataset on BigQuery. The goal: trace where users drop off in the conversion funnel, test whether marketing channels and device types meaningfully differ in conversion behavior, and measure cohort retention week-by-week
-These analytical patterns — funnel conversion, channel attribution, cohort retention, device-segmented conversion testing — are the daily work of analysts at iGaming, e-commerce, and SaaS companies. iGaming operators don't publish behavioral data, but the SQL techniques (`UNNEST` of event arrays, struct field access, session-level metrics) and statistical methods (proportion z-tests, chi-square independence) translate 1:1 from this e-commerce sample to a sportsbook or casino analytics environment.
+This project explores 3 months of session-level data from the Google Merchandise Store using the public GA4 sample dataset on BigQuery. I wanted to look at where users drop off in the conversion funnel, whether marketing channels and device types really differ in how they convert, and how many users come back week after week.
+
 
 ## Dashboard preview
 
@@ -42,7 +42,7 @@ ga4-ecommerce-analysis/
 
 ## Analysis
 
-The SQL is organized around four diagnostic questions. Two of the four are paired with statistical tests in the accompanying Python notebook.
+The SQL covers four questions. Two of them have a statistical test in the Python notebook.
 
 ### Q1 — Where do users drop off in the conversion funnel?
 
@@ -58,30 +58,30 @@ Maps the full conversion funnel from `session_start` → `view_item` → `add_to
 
 Groups sessions by GA4 default channel groupings (Direct, Organic Search, Paid Search, Referral, Unassigned), with conversion rate per channel and a statistical test on the top two channels.
 
-**Methodology note:** GA4's `(data deleted)` rows (anonymization placeholders for redacted user data) were excluded — they don't represent real channels.
+**Methodology note:** GA4's `(data deleted)` rows (anonymization placeholders for redacted user data) were excluded, as they don't represent real channels.
 
 **Key findings:**
 
-- **Referral traffic is the highest-converting channel at 1.67%**, dominated by visitors from `shop.googlemerchandisestore.com` — a partner property delivering high-intent traffic.
-- **Direct traffic converts slightly better than Organic Search** (1.30% vs 1.11%) — a 0.18 pp absolute gap, or ~16% in relative terms.
-- **Paid search underperforms organic** (0.98% vs 1.11%) — typical pattern where paid clicks skew toward top-of-funnel browsing while organic captures users who already have search intent.
+- **Referrals convert the best at 1.67%**, mostly from `shop.googlemerchandisestore.com`, a related Google site, so those visitors already know what they're shopping for.
+- **Direct traffic converts slightly better than Organic Search (1.30% vs 1.11%)** The gap looks tiny, just 0.18 percentage points, but it's about 16% better in relative terms
+- **Paid search converts worse than organic (0.98% vs 1.11%)** That's a common pattern: paid clicks usually bring people who are still browsing, while organic search brings people who already know what they're looking for.
 
 **Statistical test:** Two-proportion z-test on Direct vs Organic Search conversion rates.
 
 - **H₀:** rate(Direct) = rate(Organic) | **H₁:** they differ | **α** = 0.05
 - **Result:** z = -3.64, p < 0.001 → **reject H₀**
-- The 0.18 pp gap is statistically reliable despite being small, because the combined sample is ~194K sessions — large enough to detect even modest differences. An honest "statistically significant but practically modest" finding.
+- The gap is small (just 0.18 pp), but with about 194K sessions in the test, even tiny differences show up as statistically real. So the difference is genuine, direct really does convert better, but it's still a small one.
 
 ### Q3 — Cohort retention: do users come back?
 
-Tracks weekly retention for each acquisition cohort — what fraction of users from each cohort return in each subsequent week.
+Groups users by the week they first showed up, then tracks how many come back in each later week.
 
 **Key findings:**
 
-- **Average Week 1 retention is ~4%** across all cohorts — roughly 96% of new users never return after their first visit.
-- **Retention isn't uniform across the period** — November cohorts retained ~6% at Week 1, while December and January cohorts dropped to ~3%. A roughly 50% relative decline.
-- **The November-to-December shift coincides with the holiday shopping season**, suggesting later traffic may have lower repeat intent (gift-buyers, post-holiday browsers). The pattern is consistent across multiple weekly cohorts, so it's structural rather than random noise.
-- **By Week 4 onward, retention settles below 1%** across all cohorts — a small "loyal core" of repeat visitors that's stable but tiny.
+- **Average Week 1 retention is ~4%** across all cohorts, roughly 96% of new users never return after their first visit.
+- **Retention wasn't steady across the period** November groups kept about 6% of users at Week 1, but December and January groups dropped to around 3%. Roughly half as many users came back.
+- **The drop lines up with the holiday shopping season**. Later visitors were probably gift-buyers and post-holiday browsers, who don't tend to come back. The same pattern shows up across multiple weeks, so it's a real shift, not random noise.
+- **By Week 4 onward, retention settles below 1%** across all cohorts. It's a small "loyal core" of repeat visitors that's stable but tiny.
 
 ### Q4 — Does device type affect conversion?
 
@@ -90,17 +90,17 @@ Compares conversion rate and average purchase value across device types (desktop
 **Key findings:**
 
 - **Conversion rates across devices are very close:** Mobile 1.41%, Desktop 1.34%, Tablet 1.30%.
-- **Desktop has the highest average purchase value** ($75.96), while Mobile drives more frequent but smaller purchases ($73.57) — the classic mobile-vs-desktop pattern of higher frequency at lower per-transaction value.
+- **Desktop has the highest average purchase value** ($75.96), while Mobile drives more frequent but smaller purchases ($73.57), the usual pattern where mobile shoppers buy more often but spend a little less each time.
 
 **Statistical test:** Chi-square test of independence on the device × purchase contingency table.
 
 - **H₀:** device type and purchase are independent | **H₁:** they differ | **α** = 0.05
 - **Result:** χ² = 3.48, p = 0.18 → **fail to reject H₀**
-- The differences in conversion rate look real on the surface (mobile leads by 0.11 pp), but the gaps are small enough to be plausibly explained by random variation. Despite ~355K total sessions, the spread isn't large enough to reach statistical significance. For this dataset, device choice doesn't meaningfully predict whether a session ends in a purchase.
+- On the surface, mobile looks like it converts a little better (by 0.11 pp), but the gaps are small enough that they could easily be random. Even with ~355K sessions, the test couldn't find a real difference between devices. For this dataset, device type doesn't really tell you whether a session will end in a purchase.
 
 ## Limitations
 
 - **Short time window.** The dataset covers only 3 months. Seasonal patterns (Q1 spring, mid-year sales cycles, year-over-year comparisons) cannot be observed within this scope.
-- **Obfuscated sample data.** Some channel sources are aggregated as `<Other>` and some user identifiers have been redacted (`(data deleted)` rows). This limits the granularity of channel attribution and may slightly distort some findings.
-- **Huge sample size affects the statistics.** With ~355K sessions, statistical tests will flag small differences as significant. Both findings in this project hold up — Q2's z-test rejects because the effect is real even though the gap is small, and Q4's chi-square correctly fails to reject because the device-level spread is tighter than the test's sensitivity threshold. A smaller dataset might produce different conclusions.
-- **Single-source data.** GA4 captures only what's measurable through Google's tracking — it doesn't include marketing spend, A/B test variants, customer support contacts, or competitor benchmarks. Findings describe behavior, not causes.
+- **Obfuscated sample data.** Some channel sources are aggregated as `<Other>` and some user identifiers have been redacted (`(data deleted)` rows). This limits the granularity of channel attribution and may throw some of the numbers off slightly.
+- **Huge sample size affects the statistics.** With ~355K sessions, the tests can pick up even small differences as "real." Both findings still hold up: Q2 found a real (if small) gap between channels, and Q4 correctly found no real gap between devices. With less data, the same tests might land differently.
+- **Single-source data.** GA4 only sees what happens on the site; it doesn't include marketing spend, A/B test variants, customer support contacts, or what competitors are doing. The findings show behavior, not what caused it.
