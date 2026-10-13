@@ -69,8 +69,9 @@ Groups sessions by GA4 default channel groupings (Direct, Organic Search, Paid S
 **Statistical test:** Two-proportion z-test on Direct vs Organic Search conversion rates.
 
 - **H₀:** rate(Direct) = rate(Organic) | **H₁:** they differ | **α** = 0.05
-- **Result:** z = -3.64, p < 0.001 → **reject H₀**
-- The gap is small (just 0.18 pp), but with about 194K sessions in the test, even tiny differences show up as statistically real. So the difference is genuine, direct really does convert better, but it's still a small one.
+- **Result:** z = -3.64 (computed as Organic minus Direct), p < 0.001 → **reject H₀**
+- The gap is small (0.18 pp), but with about 194K sessions in the test, even tiny differences become statistically significant. The difference is unlikely to be random, but it's small in practical terms.
+- This is an observational comparison: users choose how they arrive, so the result shows that Direct visitors convert better, not that the channel itself causes higher conversion.
 
 ### Q3 — Cohort retention: do users come back?
 
@@ -102,5 +103,7 @@ Compares conversion rate and average purchase value across device types (desktop
 
 - **Short time window.** The dataset covers only 3 months. Seasonal patterns (Q1 spring, mid-year sales cycles, year-over-year comparisons) cannot be observed within this scope.
 - **Obfuscated sample data.** Some channel sources are aggregated as `<Other>` and some user identifiers have been redacted (`(data deleted)` rows). This limits the granularity of channel attribution and may throw some of the numbers off slightly.
-- **Huge sample size affects the statistics.** With ~355K sessions, the tests can pick up even small differences as "real." Both findings still hold up: Q2 found a real (if small) gap between channels, and Q4 correctly found no real gap between devices. With less data, the same tests might land differently.
-- **Single-source data.** GA4 only sees what happens on the site; it doesn't include marketing spend, A/B test variants, customer support contacts, or what competitors are doing. The findings show behavior, not what caused it.
+- **Huge sample size affects the statistics.** With ~355K sessions, the tests can flag even very small differences as significant. That's why the Q2 result is reported together with the size of the gap: statistically significant, but small in practice.
+- **Sessions aren't fully independent.** Both tests treat each session as a separate observation, but one user can have several sessions. This can make p-values look stronger than they really are. A user-level analysis would be more rigorous.
+- **Observational data.** Users choose their own channel and device, so differences between groups describe behavior, not causal effects. Measuring causal impact would require a controlled experiment (A/B test).
+- **Single-source data.** GA4 only sees what happens on the site; it doesn't include marketing spend, A/B test variants, customer support contacts, or what competitors are doing.
